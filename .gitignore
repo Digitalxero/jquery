@@ -3,6 +3,7 @@ dist
 .project
 .settings
 *~
+*.orig
 *.diff
 *.patch
 /*.html
