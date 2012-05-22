@@ -1,65 +1,72 @@
 (function( jQuery ) {
 
-// Create innerHeight, innerWidth, outerHeight and outerWidth methods
-jQuery.each([ "Height", "Width" ], function( i, name ) {
+// Create width, height, innerHeight, innerWidth, outerHeight and outerWidth methods
+jQuery.each( { Height: "height", Width: "width" }, function( name, type ) {
+	var clientProp = "client" + name,
+		scrollProp = "scroll" + name,
+		offsetProp = "offset" + name;
 
-	var type = name.toLowerCase();
-
-	// innerHeight and innerWidth
-	jQuery.fn["inner" + name] = function() {
-		return this[0] ?
-			parseFloat( jQuery.css( this[0], type, "padding" ) ) :
-			null;
-	};
+	// height, width, innerHeight and innerWidth
+	jQuery.each( { padding: "inner" + name, content: type }, function( extra, funcName ) {
+		jQuery.fn[ funcName ] = function( value ) {
+			var args = [ type, extra ];
+			if ( arguments.length ) {
+				args.push( value );
+			}
+			return getDimension.apply( this, args );
+		};
+	});
 
 	// outerHeight and outerWidth
-	jQuery.fn["outer" + name] = function( margin ) {
-		return this[0] ?
-			parseFloat( jQuery.css( this[0], type, margin ? "margin" : "border" ) ) :
-			null;
+	jQuery.fn[ "outer" + name ] = function( margin, value ) {
+		var args = [ type, ( margin === true || value === true ) ? "margin" : "border" ];
+		if ( arguments.length && typeof margin !== "boolean" ) {
+			args.push( margin );
+		}
+		return getDimension.apply( this, args );
 	};
 
-	jQuery.fn[ type ] = function( size ) {
-		// Get window width or height
-		var elem = this[0];
-		if ( !elem ) {
-			return size == null ? null : this;
-		}
+	function getDimension( type, extra, value ) {
+		return jQuery.access( this, function( elem, type, value ) {
+			var doc, orig, ret;
 
-		if ( jQuery.isFunction( size ) ) {
-			return this.each(function( i ) {
-				var self = jQuery( this );
-				self[ type ]( size.call( this, i, self[ type ]() ) );
-			});
-		}
+			if ( jQuery.isWindow( elem ) ) {
+				// As of 5/8/2012 this will yield incorrect results for Mobile Safari, but there
+				// isn't a whole lot we can do. See pull request at this URL for discussion:
+				// https://github.com/jquery/jquery/pull/764
+				return elem.document.documentElement[ clientProp ];
+			}
 
-		if ( jQuery.isWindow( elem ) ) {
-			// Everyone else use document.documentElement or document.body depending on Quirks vs Standards mode
-			return elem.document.compatMode === "CSS1Compat" && elem.document.documentElement[ "client" + name ] ||
-				elem.document.body[ "client" + name ];
+			// Get document width or height
+			if ( elem.nodeType === 9 ) {
+				// Either scroll[Width/Height] or offset[Width/Height], whichever is greater
+				doc = elem.documentElement;
 
-		// Get document width or height
-		} else if ( elem.nodeType === 9 ) {
-			// Either scroll[Width/Height] or offset[Width/Height], whichever is greater
-			return Math.max(
-				elem.documentElement["client" + name],
-				elem.body["scroll" + name], elem.documentElement["scroll" + name],
-				elem.body["offset" + name], elem.documentElement["offset" + name]
-			);
+				// when a window > document, IE6 reports a offset[Width/Height] > client[Width/Height]
+				// so we can't use max, as it'll choose the incorrect offset[Width/Height]
+				// instead we use the correct client[Width/Height]
+				// support:IE6
+				if ( doc[ clientProp ] >= doc[ scrollProp ] ) {
+					return doc[ clientProp ];
+				}
 
-		// Get or set width or height on the element
-		} else if ( size === undefined ) {
-			var orig = jQuery.css( elem, type ),
+				return Math.max(
+					elem.body[ scrollProp ], doc[ scrollProp ],
+					elem.body[ offsetProp ], doc[ offsetProp ]
+				);
+			}
+
+			// Get width or height on the element
+			if ( value === undefined ) {
+				orig = jQuery.css( elem, type, extra );
 				ret = parseFloat( orig );
+				return jQuery.isNumeric( ret ) ? ret : orig;
+			}
 
-			return jQuery.isNaN( ret ) ? orig : ret;
-
-		// Set the width or height on the element (default to pixels if value is unitless)
-		} else {
-			return this.css( type, typeof size === "string" ? size : size + "px" );
-		}
-	};
-
+			// Set the width or height on the element
+			jQuery.style( elem, type, value, extra );
+		}, type, value, arguments.length > 2, null );
+	}
 });
 
 })( jQuery );

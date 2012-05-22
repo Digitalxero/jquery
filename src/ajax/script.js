@@ -2,27 +2,37 @@
 
 // Install script dataType
 jQuery.ajaxSetup({
-
 	accepts: {
-		script: "text/javascript, application/javascript"
+		script: "text/javascript, application/javascript, application/ecmascript, application/x-ecmascript"
 	},
-
 	contents: {
-		script: /javascript/
+		script: /javascript|ecmascript/
 	},
-
 	converters: {
-		"text script": jQuery.globalEval
+		"text script": function( text ) {
+			jQuery.globalEval( text );
+			return text;
+		}
 	}
 });
 
 // Handle cache's special case and global
+<<<<<<< HEAD
 jQuery.ajaxPrefilter("script", function(s) {
 
+=======
+jQuery.ajaxPrefilter( "script", function( s ) {
+>>>>>>> e0151e5827d7091f311c82d9f951aaaa2688ba8c
 	if ( s.cache === undefined ) {
 		s.cache = false;
 	}
+	if ( s.crossDomain ) {
+		s.type = "GET";
+		s.global = false;
+	}
+});
 
+<<<<<<< HEAD
 	if ( s.crossDomain ) {
 		s.type = "GET";
 		s.global = false;
@@ -31,18 +41,22 @@ jQuery.ajaxPrefilter("script", function(s) {
 
 // Bind script tag hack transport
 jQuery.ajaxTransport("script", function(s) {
+=======
+// Bind script tag hack transport
+jQuery.ajaxTransport( "script", function(s) {
+>>>>>>> e0151e5827d7091f311c82d9f951aaaa2688ba8c
 
 	// This transport only deals with cross domain requests
 	if ( s.crossDomain ) {
 
 		var script,
-			head = document.getElementsByTagName("head")[0] || document.documentElement;
+			head = document.head || document.getElementsByTagName( "head" )[0] || document.documentElement;
 
 		return {
 
-			send: function(_, callback) {
+			send: function( _, callback ) {
 
-				script = document.createElement("script");
+				script = document.createElement( "script" );
 
 				script.async = "async";
 
@@ -53,9 +67,9 @@ jQuery.ajaxTransport("script", function(s) {
 				script.src = s.url;
 
 				// Attach handlers for all browsers
-				script.onload = script.onreadystatechange = function( _ , isAbort ) {
+				script.onload = script.onreadystatechange = function( _, isAbort ) {
 
-					if ( ! script.readyState || /loaded|complete/.test( script.readyState ) ) {
+					if ( isAbort || !script.readyState || /loaded|complete/.test( script.readyState ) ) {
 
 						// Handle memory leak in IE
 						script.onload = script.onreadystatechange = null;
@@ -66,10 +80,10 @@ jQuery.ajaxTransport("script", function(s) {
 						}
 
 						// Dereference the script
-						script = 0;
+						script = undefined;
 
 						// Callback if not abort
-						if ( ! isAbort ) {
+						if ( !isAbort ) {
 							callback( 200, "success" );
 						}
 					}
@@ -81,7 +95,7 @@ jQuery.ajaxTransport("script", function(s) {
 
 			abort: function() {
 				if ( script ) {
-					script.onload(0,1);
+					script.onload( 0, 1 );
 				}
 			}
 		};

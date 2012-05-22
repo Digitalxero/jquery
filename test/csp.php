@@ -2,6 +2,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+<<<<<<< HEAD
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 	<title>CSP Test Page</title>
 
@@ -23,6 +24,12 @@
   <script src="../src/effects.js"></script>
   <script src="../src/offset.js"></script>
   <script src="../src/dimensions.js"></script>
+=======
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<title>CSP Test Page</title>
+
+	<script src="data/include_js.php"></script>
+>>>>>>> e0151e5827d7091f311c82d9f951aaaa2688ba8c
 </head>
 <body>
 	<p>CSP Test Page</p>

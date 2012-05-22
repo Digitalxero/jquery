@@ -1,5 +1,6 @@
 (function( jQuery ) {
 
+<<<<<<< HEAD
 (function() {
 
 	jQuery.support = {};
@@ -13,15 +14,45 @@
 		a = div.getElementsByTagName("a")[0],
 		select = document.createElement("select"),
 		opt = select.appendChild( document.createElement("option") );
+=======
+jQuery.support = (function() {
+
+	var support,
+		all,
+		a,
+		select,
+		opt,
+		input,
+		fragment,
+		tds,
+		events,
+		eventName,
+		i,
+		isSupported,
+		div = document.createElement( "div" ),
+		documentElement = document.documentElement;
+
+	// Preliminary tests
+	div.setAttribute("className", "t");
+	div.innerHTML = "   <link/><table></table><a href='/a' style='top:1px;float:left;opacity:.55;'>a</a><input type='checkbox'/>";
+
+	all = div.getElementsByTagName( "*" );
+	a = div.getElementsByTagName( "a" )[ 0 ];
+>>>>>>> e0151e5827d7091f311c82d9f951aaaa2688ba8c
 
 	// Can't get basic test support
 	if ( !all || !all.length || !a ) {
-		return;
+		return {};
 	}
 
-	jQuery.support = {
+	// First batch of supports tests
+	select = document.createElement( "select" );
+	opt = select.appendChild( document.createElement("option") );
+	input = div.getElementsByTagName( "input" )[ 0 ];
+
+	support = {
 		// IE strips leading whitespace when .innerHTML is used
-		leadingWhitespace: div.firstChild.nodeType === 3,
+		leadingWhitespace: ( div.firstChild.nodeType === 3 ),
 
 		// Make sure that tbody elements aren't automatically inserted
 		// IE will insert them into empty tables
@@ -32,17 +63,17 @@
 		htmlSerialize: !!div.getElementsByTagName("link").length,
 
 		// Get the style information from getAttribute
-		// (IE uses .cssText insted)
-		style: /red/.test( a.getAttribute("style") ),
+		// (IE uses .cssText instead)
+		style: /top/.test( a.getAttribute("style") ),
 
 		// Make sure that URLs aren't manipulated
 		// (IE normalizes it by default)
-		hrefNormalized: a.getAttribute("href") === "/a",
+		hrefNormalized: ( a.getAttribute("href") === "/a" ),
 
 		// Make sure that element opacity exists
 		// (IE uses filter instead)
 		// Use a regex to work around a WebKit issue. See #5145
-		opacity: /^0.55$/.test( a.style.opacity ),
+		opacity: /^0.55/.test( a.style.opacity ),
 
 		// Verify style float existence
 		// (IE uses styleFloat instead of cssFloat)
@@ -51,27 +82,52 @@
 		// Make sure that if no value is specified for a checkbox
 		// that it defaults to "on".
 		// (WebKit defaults to "" instead)
-		checkOn: div.getElementsByTagName("input")[0].value === "on",
+		checkOn: ( input.value === "on" ),
 
 		// Make sure that a selected-by-default option has a working selected property.
 		// (WebKit defaults to false instead of true, IE too, if it's in an optgroup)
 		optSelected: opt.selected,
 
+		// Test setAttribute on camelCase class. If it works, we need attrFixes when doing get/setAttribute (ie6/7)
+		getSetAttribute: div.className !== "t",
+
+		// Tests for enctype support on a form(#6743)
+		enctype: !!document.createElement("form").enctype,
+
+		// Makes sure cloning an html5 element does not cause problems
+		// Where outerHTML is undefined, this still works
+		html5Clone: document.createElement("nav").cloneNode( true ).outerHTML !== "<:nav></:nav>",
+
+		// jQuery.support.boxModel DEPRECATED in 1.8 since we don't support Quirks Mode
+		boxModel: (document.compatMode === "CSS1Compat"),
+
 		// Will be defined later
+		submitBubbles: true,
+		changeBubbles: true,
+		focusinBubbles: false,
 		deleteExpando: true,
+<<<<<<< HEAD
 		optDisabled: false,
 		checkClone: false,
 		_scriptEval: null,
+=======
+>>>>>>> e0151e5827d7091f311c82d9f951aaaa2688ba8c
 		noCloneEvent: true,
-		boxModel: null,
 		inlineBlockNeedsLayout: false,
 		shrinkWrapBlocks: false,
-		reliableHiddenOffsets: true
+		reliableMarginRight: true,
+		pixelMargin: true,
+		boxSizingReliable: true
 	};
 
+	// Make sure checked status is properly cloned
+	input.checked = true;
+	support.noCloneChecked = input.cloneNode( true ).checked;
+
 	// Make sure that the options inside disabled selects aren't marked as disabled
-	// (WebKit marks them as diabled)
+	// (WebKit marks them as disabled)
 	select.disabled = true;
+<<<<<<< HEAD
 	jQuery.support.optDisabled = !opt.disabled;
 
 	jQuery.support.scriptEval = function() {
@@ -104,11 +160,15 @@
 
 		return jQuery.support._scriptEval;
 	};
+=======
+	support.optDisabled = !opt.disabled;
+>>>>>>> e0151e5827d7091f311c82d9f951aaaa2688ba8c
 
 	// Test to see if it's possible to delete an expando from an element
 	// Fails in Internet Explorer
 	try {
 		delete div.test;
+<<<<<<< HEAD
 
 	} catch(e) {
 		jQuery.support.deleteExpando = false;
@@ -116,50 +176,93 @@
 
 	if ( div.attachEvent && div.fireEvent ) {
 		div.attachEvent("onclick", function click() {
-			// Cloning a node shouldn't copy over any
-			// bound event handlers (IE does this)
-			jQuery.support.noCloneEvent = false;
-			div.detachEvent("onclick", click);
-		});
-		div.cloneNode(true).fireEvent("onclick");
+=======
+	} catch( e ) {
+		support.deleteExpando = false;
 	}
 
-	div = document.createElement("div");
-	div.innerHTML = "<input type='radio' name='radiotest' checked='checked'/>";
+	if ( !div.addEventListener && div.attachEvent && div.fireEvent ) {
+		div.attachEvent( "onclick", function() {
+>>>>>>> e0151e5827d7091f311c82d9f951aaaa2688ba8c
+			// Cloning a node shouldn't copy over any
+			// bound event handlers (IE does this)
+			support.noCloneEvent = false;
+		});
+		div.cloneNode( true ).fireEvent( "onclick" );
+	}
 
-	var fragment = document.createDocumentFragment();
-	fragment.appendChild( div.firstChild );
+	// Check if a radio maintains its value
+	// after being appended to the DOM
+	input = document.createElement("input");
+	input.value = "t";
+	input.setAttribute("type", "radio");
+	support.radioValue = input.value === "t";
+
+	input.setAttribute("checked", "checked");
+
+	// #11217 - WebKit loses check when the name is after the checked attribute
+	input.setAttribute( "name", "t" );
+
+	div.appendChild( input );
+	fragment = document.createDocumentFragment();
+	fragment.appendChild( div.lastChild );
 
 	// WebKit doesn't clone checked state correctly in fragments
-	jQuery.support.checkClone = fragment.cloneNode(true).cloneNode(true).lastChild.checked;
+	support.checkClone = fragment.cloneNode( true ).cloneNode( true ).lastChild.checked;
 
-	// Figure out if the W3C box model works as expected
-	// document.body must exist before we can do this
+	// Check if a disconnected checkbox will retain its checked
+	// value of true after appended to the DOM (IE6/7)
+	support.appendChecked = input.checked;
+
+	fragment.removeChild( input );
+	fragment.appendChild( div );
+
+	// Technique from Juriy Zaytsev
+	// http://perfectionkills.com/detecting-event-support-without-browser-sniffing/
+	// We only care about the case where non-standard event systems
+	// are used, namely in IE. Short-circuiting here helps us to
+	// avoid an eval call (in setAttribute) which can cause CSP
+	// to go haywire. See: https://developer.mozilla.org/en/Security/CSP
+	if ( div.attachEvent ) {
+		for ( i in {
+			submit: 1,
+			change: 1,
+			focusin: 1
+		}) {
+			eventName = "on" + i;
+			isSupported = ( eventName in div );
+			if ( !isSupported ) {
+				div.setAttribute( eventName, "return;" );
+				isSupported = ( typeof div[ eventName ] === "function" );
+			}
+			support[ i + "Bubbles" ] = isSupported;
+		}
+	}
+
+	fragment.removeChild( div );
+
+	// Null elements to avoid leaks in IE
+	fragment = select = opt = div = input = null;
+
+	// Run tests that need a body at doc ready
 	jQuery(function() {
-		var div = document.createElement("div");
-		div.style.width = div.style.paddingLeft = "1px";
+		var container, offsetSupport, marginDiv,
+			conMarginTop = 1,
+			boxSizingPrefixes = [ "", "-moz-", "-webkit-", "" ],
+			body = document.getElementsByTagName("body")[0];
 
-		document.body.appendChild( div );
-		jQuery.boxModel = jQuery.support.boxModel = div.offsetWidth === 2;
-
-		if ( "zoom" in div.style ) {
-			// Check if natively block-level elements act like inline-block
-			// elements when setting their display to 'inline' and giving
-			// them layout
-			// (IE < 8 does this)
-			div.style.display = "inline";
-			div.style.zoom = 1;
-			jQuery.support.inlineBlockNeedsLayout = div.offsetWidth === 2;
-
-			// Check if elements with layout shrink-wrap their children
-			// (IE 6 does this)
-			div.style.display = "";
-			div.innerHTML = "<div style='width:4px;'></div>";
-			jQuery.support.shrinkWrapBlocks = div.offsetWidth !== 2;
+		if ( !body ) {
+			// Return for frameset docs that don't have a body
+			return;
 		}
 
-		div.innerHTML = "<table><tr><td style='padding:0;border:0;display:none'></td><td>t</td></tr></table>";
-		var tds = div.getElementsByTagName("td");
+		container = document.createElement("div");
+		container.style.cssText = "visibility:hidden;border:0;width:0;height:0;position:static;top:0;margin-top:" + conMarginTop + "px";
+		body.insertBefore( container, body.firstChild );
+
+		// Construct the test element
+		div = document.createElement("div");
+		container.appendChild( div );
 
 		// Check if table cells still have offsetWidth/Height when they are set
 		// to display:none and there are still other visible table cells in a
@@ -168,20 +271,47 @@
 		// display:none (it is still safe to use offsets if a parent element is
 		// hidden; don safety goggles and see bug #4512 for more information).
 		// (only IE 8 fails this test)
-		jQuery.support.reliableHiddenOffsets = tds[0].offsetHeight === 0;
+		div.innerHTML = "<table><tr><td style='padding:0;margin:0;border:0;display:none'></td><td>t</td></tr></table>";
+		tds = div.getElementsByTagName( "td" );
+		isSupported = ( tds[ 0 ].offsetHeight === 0 );
 
-		tds[0].style.display = "";
-		tds[1].style.display = "none";
+		tds[ 0 ].style.display = "";
+		tds[ 1 ].style.display = "none";
 
 		// Check if empty table cells still have offsetWidth/Height
-		// (IE < 8 fail this test)
-		jQuery.support.reliableHiddenOffsets = jQuery.support.reliableHiddenOffsets && tds[0].offsetHeight === 0;
-		div.innerHTML = "";
+		// (IE <= 8 fail this test)
+		support.reliableHiddenOffsets = isSupported && ( tds[ 0 ].offsetHeight === 0 );
 
-		document.body.removeChild( div ).style.display = "none";
-		div = tds = null;
-	});
+		// Check if div with explicit width and no margin-right incorrectly
+		// gets computed margin-right based on width of container. For more
+		// info see bug #3333
+		// Fails in WebKit before Feb 2011 nightlies
+		// WebKit Bug 13343 - getComputedStyle returns wrong value for margin-right
+		if ( window.getComputedStyle ) {
+			div.innerHTML = "";
+			marginDiv = document.createElement( "div" );
+			marginDiv.style.width = "0";
+			marginDiv.style.marginRight = "0";
+			div.style.width = "2px";
+			div.appendChild( marginDiv );
+			support.reliableMarginRight =
+				( parseInt( ( window.getComputedStyle( marginDiv, null ) || { marginRight: 0 } ).marginRight, 10 ) || 0 ) === 0;
+		}
 
+		if ( typeof div.style.zoom !== "undefined" ) {
+			// Check if natively block-level elements act like inline-block
+			// elements when setting their display to 'inline' and giving
+			// them layout
+			// (IE < 8 does this)
+			div.innerHTML = "";
+			div.style.width = div.style.padding = "1px";
+			div.style.border = 0;
+			div.style.overflow = "hidden";
+			div.style.display = "inline";
+			div.style.zoom = 1;
+			support.inlineBlockNeedsLayout = ( div.offsetWidth === 3 );
+
+<<<<<<< HEAD
 	// Technique from Juriy Zaytsev
 	// http://thinkweb2.com/projects/prototype/detecting-event-support-without-browser-sniffing/
 	var eventSupported = function( eventName ) {
@@ -200,16 +330,44 @@
 		if ( !isSupported ) {
 			el.setAttribute(eventName, "return;");
 			isSupported = typeof el[eventName] === "function";
+=======
+			// Check if elements with layout shrink-wrap their children
+			// (IE 6 does this)
+			div.style.display = "block";
+			div.style.overflow = "visible";
+			div.innerHTML = "<div style='width:5px;'></div>";
+			support.shrinkWrapBlocks = ( div.offsetWidth !== 3 );
+>>>>>>> e0151e5827d7091f311c82d9f951aaaa2688ba8c
 		}
-		el = null;
 
-		return isSupported;
-	};
+		div.style.cssText = boxSizingPrefixes.join("box-sizing:border-box;") + "border:1px;width:4px;padding:1px;display:block;margin-top:1%;";
+		support.boxSizing = ( div.offsetWidth === 4 );
+		if ( window.getComputedStyle ) {
+			support.boxSizingReliable = ( window.getComputedStyle( div, null ) || { width: "4px" } ).width === "4px";
+			support.pixelMargin = ( window.getComputedStyle( div, null ) || { marginTop: 0 } ).marginTop !== "1%";
+		}
 
-	jQuery.support.submitBubbles = eventSupported("submit");
-	jQuery.support.changeBubbles = eventSupported("change");
+		offsetSupport = {
+			doesNotIncludeMarginInBodyOffset: ( body.offsetTop !== conMarginTop )
+		};
 
+
+<<<<<<< HEAD
 	// release memory in IE
 	div = all = a = null;
+=======
+		if ( typeof container.style.zoom !== "undefined" ) {
+			container.style.zoom = 1;
+		}
+
+		body.removeChild( container );
+		marginDiv = div = container = null;
+
+		jQuery.extend( support, offsetSupport );
+	});
+
+	return support;
+>>>>>>> e0151e5827d7091f311c82d9f951aaaa2688ba8c
 })();
+
 })( jQuery );
